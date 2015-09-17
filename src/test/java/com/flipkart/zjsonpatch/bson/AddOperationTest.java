@@ -1,4 +1,6 @@
-package com.flipkart.zjsonpatch;
+package com.flipkart.zjsonpatch.bson;
+
+import com.flipkart.zjsonpatch.jackson.AbstractTest;
 
 import java.io.IOException;
 

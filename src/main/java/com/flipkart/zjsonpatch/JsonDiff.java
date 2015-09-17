@@ -25,7 +25,7 @@ public class JsonDiff {
         }
     }
 
-    public static Node asJson(final Node source, final Node target) {
+    public static Node.Array asJson(final Node source, final Node target) {
         final List<Diff> diffs = new ArrayList<Diff>();
         List<Object> path = new LinkedList<Object>();
         /**

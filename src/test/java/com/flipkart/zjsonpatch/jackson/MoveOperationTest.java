@@ -1,7 +1,6 @@
-package com.flipkart.zjsonpatch;
+package com.flipkart.zjsonpatch.jackson;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.flipkart.zjsonpatch.jackson.JacksonJsonDiff;
 import org.junit.Test;
 
 import java.io.IOException;

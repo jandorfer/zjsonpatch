@@ -1,10 +1,8 @@
-package com.flipkart.zjsonpatch;
+package com.flipkart.zjsonpatch.bson;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.bson.Document;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -23,24 +21,26 @@ public class TestDataGenerator {
             "a", "b", "c", "d", "e", "f", "g", "h", "i", "j",
             "a", "b", "c", "d", "e", "f", "g", "h", "i", "j");
 
-    public static JsonNode generate(int count) {
-        ArrayNode jsonNode = JsonNodeFactory.instance.arrayNode();
+    public static Document generate(int count) {
+        List<Document> jsonNode = new ArrayList<Document>();
         for (int i = 0; i < count; i++) {
-            ObjectNode objectNode = JsonNodeFactory.instance.objectNode();
+            Document objectNode = new Document();
             objectNode.put("name", name.get(random.nextInt(name.size())));
             objectNode.put("age", age.get(random.nextInt(age.size())));
             objectNode.put("gender", gender.get(random.nextInt(gender.size())));
-            ArrayNode countryNode = getArrayNode(country.subList(random.nextInt(country.size() / 2), (country.size() / 2) + random.nextInt(country.size() / 2)));
+            List countryNode = getArrayNode(country.subList(random.nextInt(country.size() / 2), (country.size() / 2) + random.nextInt(country.size() / 2)));
             objectNode.put("country", countryNode);
-            ArrayNode friendNode = getArrayNode(friends.subList(random.nextInt(friends.size() / 2), (friends.size() / 2) + random.nextInt(friends.size() / 2)));
+            List friendNode = getArrayNode(friends.subList(random.nextInt(friends.size() / 2), (friends.size() / 2) + random.nextInt(friends.size() / 2)));
             objectNode.put("friends", friendNode);
             jsonNode.add(objectNode);
         }
-        return jsonNode;
+        Document holder = new Document();
+        holder.put("people", jsonNode);
+        return holder;
     }
 
-    private static ArrayNode getArrayNode(List<String> args) {
-        ArrayNode countryNode = JsonNodeFactory.instance.arrayNode();
+    private static List getArrayNode(List<String> args) {
+        List<String> countryNode = new ArrayList<String>();
         for(String arg : args){
             countryNode.add(arg);
         }

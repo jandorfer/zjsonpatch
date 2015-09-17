@@ -1,33 +1,14 @@
 package com.flipkart.zjsonpatch;
 
 public enum NodeType {
-    /**
-     * Array nodes
-     */
     ARRAY("array"),
-    /**
-     * Boolean nodes
-     */
     BOOLEAN("boolean"),
-    /**
-     * Integer nodes
-     */
+    BINARY("binary"),
+    DATEIIME("datetime"),
     INTEGER("integer"),
-    /**
-     * Number nodes (ie, decimal numbers)
-     */
     NULL("null"),
-    /**
-     * Object nodes
-     */
     NUMBER("number"),
-    /**
-     * Null nodes
-     */
     OBJECT("object"),
-    /**
-     * String nodes
-     */
     STRING("string");
 
     /**

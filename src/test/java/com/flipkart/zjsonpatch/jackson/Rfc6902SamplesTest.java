@@ -1,4 +1,4 @@
-package com.flipkart.zjsonpatch;
+package com.flipkart.zjsonpatch.jackson;
 
 import java.io.IOException;
 

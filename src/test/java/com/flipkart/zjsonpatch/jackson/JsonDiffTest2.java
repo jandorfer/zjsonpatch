@@ -1,9 +1,8 @@
-package com.flipkart.zjsonpatch;
+package com.flipkart.zjsonpatch.jackson;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.flipkart.zjsonpatch.jackson.JacksonJsonPatch;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -34,7 +33,7 @@ public class JsonDiffTest2 {
         for (int i = 0; i < jsonNode.size(); i++) {
             JsonNode first = jsonNode.get(i).get("first");
             JsonNode second = jsonNode.get(i).get("second");
-            JsonNode patch = jsonNode.get(i).get("patch");
+            ArrayNode patch = (ArrayNode) jsonNode.get(i).get("patch");
             String message = jsonNode.get(i).get("message").toString();
 
             System.out.println("Test # " + i);

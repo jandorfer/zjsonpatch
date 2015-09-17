@@ -1,34 +1,39 @@
-package com.flipkart.zjsonpatch.jackson;
+package com.flipkart.zjsonpatch.bson;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.flipkart.zjsonpatch.BasicNode;
 import com.flipkart.zjsonpatch.Node;
 import com.flipkart.zjsonpatch.NodeFactory;
 import com.flipkart.zjsonpatch.NodeType;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
+import org.bson.BsonArray;
+import org.bson.BsonDocument;
+import org.bson.BsonValue;
 
 import java.util.Iterator;
 
-public abstract class JacksonNode extends BasicNode implements Node {
+public abstract class BsonNode extends BasicNode implements Node {
 
-    public static final JacksonNodeFactory FACTORY = new JacksonNodeFactory();
+    public static final BsonNodeFactory FACTORY = new BsonNodeFactory();
 
-    private final JsonNode basis;
+    private final BsonValue basis;
 
-    protected JacksonNode(JsonNode basis) {
+    protected BsonNode(BsonValue basis) {
         this.basis = basis;
     }
 
-    public JsonNode getBasis() {
+    public BsonValue getBasis() {
         return this.basis;
     }
 
     @Override
     public String toString() {
-        return getBasis().toString();
+        BsonDocument temp = new BsonDocument();
+        temp.put("v", getBasis());
+        String result = temp.toJson();
+        result = result.substring(result.indexOf(":") + 1);
+        result = result.substring(0, result.lastIndexOf("}"));
+        return result.trim();
     }
 
     @Override
@@ -38,29 +43,29 @@ public abstract class JacksonNode extends BasicNode implements Node {
 
     @Override
     public boolean equals(java.lang.Object obj) {
-        return !(obj == null || !(obj instanceof JacksonNode)) &&
-                getBasis().equals(((JacksonNode) obj).getBasis());
+        return !(obj == null || !(obj instanceof BsonNode)) &&
+                getBasis().equals(((BsonNode) obj).getBasis());
     }
 
     @Override
     public Node deepCopy() {
-        return JacksonNodeFactory.get(basis.deepCopy());
+        return BsonNodeFactory.get(BsonUtils.deepCopy(getBasis()));
     }
 
     public NodeFactory getFactory() {
         return FACTORY;
     }
 
-    public static class Array extends JacksonNode implements Node.Array {
+    public static class Array extends BsonNode implements Node.Array {
 
-        private final ArrayNode arrayNode;
+        private final BsonArray arrayNode;
 
-        public Array(ArrayNode basis) {
+        public Array(BsonArray basis) {
             super(basis);
             this.arrayNode = basis;
         }
 
-        public ArrayNode getArrayNode() {
+        public BsonArray getArrayNode() {
             return this.arrayNode;
         }
 
@@ -71,7 +76,7 @@ public abstract class JacksonNode extends BasicNode implements Node {
 
         @Override
         public Node get(int index) {
-            return JacksonNodeFactory.get(this.arrayNode.get(index));
+            return BsonNodeFactory.get(this.arrayNode.get(index));
         }
 
         @Override
@@ -81,7 +86,7 @@ public abstract class JacksonNode extends BasicNode implements Node {
 
         @Override
         public void insert(int atIndex, Node entry) {
-            this.arrayNode.insert(atIndex, safeConvert(entry));
+            this.arrayNode.add(atIndex, safeConvert(entry));
         }
 
         @Override
@@ -101,41 +106,41 @@ public abstract class JacksonNode extends BasicNode implements Node {
 
         @Override
         public Iterator<Node> iterator() {
-            return Iterators.transform(this.arrayNode.iterator(), new Function<JsonNode, Node>() {
+            return Iterators.transform(this.arrayNode.iterator(), new Function<BsonValue, Node>() {
                 @Override
-                public Node apply(JsonNode jsonNode) {
-                    return JacksonNodeFactory.get(jsonNode);
+                public Node apply(BsonValue jsonNode) {
+                    return BsonNodeFactory.get(jsonNode);
                 }
             });
         }
     }
 
-    public static class Object extends JacksonNode implements Node.Object {
+    public static class Object extends BsonNode implements Node.Object {
 
-        private final ObjectNode objectNode;
+        private final BsonDocument objectNode;
 
-        public Object(ObjectNode basis) {
+        public Object(BsonDocument basis) {
             super(basis);
             this.objectNode = basis;
         }
 
-        public ObjectNode getObjectNode() {
+        public BsonDocument getObjectNode() {
             return this.objectNode;
         }
 
         @Override
         public Iterator<String> fieldNames() {
-            return this.objectNode.fieldNames();
+            return this.objectNode.keySet().iterator();
         }
 
         @Override
         public boolean has(String fieldName) {
-            return this.objectNode.has(fieldName);
+            return this.objectNode.containsKey(fieldName);
         }
 
         @Override
         public Node get(String fieldName) {
-            return JacksonNodeFactory.get(this.objectNode.get(fieldName));
+            return BsonNodeFactory.get(this.objectNode.get(fieldName));
         }
 
         @Override
@@ -152,21 +157,26 @@ public abstract class JacksonNode extends BasicNode implements Node {
         public NodeType getNodeType() {
             return NodeType.OBJECT;
         }
+
+        @Override
+        public String toString() {
+            return this.objectNode.toJson();
+        }
     }
 
-    public static class Primitive extends JacksonNode {
+    public static class Primitive extends BsonNode {
 
-        public Primitive(JsonNode basis) {
+        public Primitive(BsonValue basis) {
             super(basis);
         }
 
         @Override
         public NodeType getNodeType() {
-            return JacksonNodeType.getNodeType(this.getBasis());
+            return BsonNodeType.getNodeType(this.getBasis());
         }
     }
 
-    protected static JsonNode safeConvert(Node entry) {
-        return entry == null || !(entry instanceof JacksonNode) ? null : ((JacksonNode) entry).getBasis();
+    protected static BsonValue safeConvert(Node entry) {
+        return entry == null || !(entry instanceof BsonNode) ? null : ((BsonNode) entry).getBasis();
     }
 }

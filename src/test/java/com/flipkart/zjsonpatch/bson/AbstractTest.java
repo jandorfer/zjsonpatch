@@ -1,10 +1,10 @@
-package com.flipkart.zjsonpatch;
+package com.flipkart.zjsonpatch.bson;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.flipkart.zjsonpatch.jackson.JacksonJsonPatch;
+import com.flipkart.zjsonpatch.jackson.JsonDiffTest;
 import org.apache.commons.io.IOUtils;
+import org.bson.BsonArray;
+import org.bson.BsonDocument;
+import org.bson.BsonValue;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -17,37 +17,40 @@ import static org.hamcrest.core.IsEqual.equalTo;
  * @author ctranxuan (streamdata.io).
  */
 public abstract class AbstractTest {
-    static ObjectMapper objectMapper = new ObjectMapper();
-    static ArrayNode jsonNode;
-    static ArrayNode errorNode;
+    static BsonArray jsonNode;
+    static BsonArray errorNode;
 
     protected AbstractTest(String fileName) throws IOException {
         String path = "/testdata/" + fileName + ".json";
         InputStream resourceAsStream = JsonDiffTest.class.getResourceAsStream(path);
         String testData = IOUtils.toString(resourceAsStream, "UTF-8");
-        JsonNode testsNode = objectMapper.readTree(testData);
-        jsonNode = (ArrayNode) testsNode.get("ops");
-        errorNode = (ArrayNode) testsNode.get("errors");
+
+        BsonDocument testsNode = BsonDocument.parse(testData);
+        jsonNode = testsNode.getArray("ops");
+        errorNode = testsNode.getArray("errors");
     }
 
     @Test
     public void testPatchAppliedCleanly() throws Exception {
         for (int i = 0; i < jsonNode.size(); i++) {
-            JsonNode first = jsonNode.get(i).get("node");
-            JsonNode second = jsonNode.get(i).get("expected");
-            JsonNode patch = jsonNode.get(i).get("op");
-            String message = jsonNode.get(i).has("message") ? jsonNode.get(i).get("message").toString() : "";
+            BsonDocument testSpecification = (BsonDocument) jsonNode.get(i);
+            BsonValue first = testSpecification.get("node");
+            BsonValue second = testSpecification.get("expected");
+            BsonArray patch = testSpecification.getArray("op");
+            String message = testSpecification.containsKey("message") ? testSpecification.get("message").toString() : "";
 
             System.out.println("Test # " + i);
             System.out.println(first);
             System.out.println(second);
             System.out.println(patch);
 
-            JsonNode secondPrime = JacksonJsonPatch.apply(patch, first);
+            BsonValue secondPrime = BsonPatch.apply(patch, first);
             System.out.println(secondPrime);
             Assert.assertThat(message, secondPrime, equalTo(second));
         }
     }
+
+
 
 //    @Test
 //    public void testPatchSyntax() throws Exception {
@@ -70,14 +73,15 @@ public abstract class AbstractTest {
     @Test(expected = RuntimeException.class)
     public void testErrorsAreCorrectlyReported() {
         for (int i = 0; i < errorNode.size(); i++) {
-            JsonNode first = errorNode.get(i).get("node");
-            JsonNode patch = errorNode.get(i).get("op");
+            BsonDocument testSpecification = (BsonDocument) errorNode.get(i);
+            BsonDocument first = (BsonDocument) testSpecification.get("node");
+            BsonArray patch = testSpecification.getArray("op");
 
             System.out.println("Error Test # " + i);
             System.out.println(first);
             System.out.println(patch);
 
-            JsonNode secondPrime = JacksonJsonPatch.apply(patch, first);
+            BsonValue secondPrime = BsonPatch.apply(patch, first);
             System.out.println(secondPrime);
         }
 
@@ -85,5 +89,4 @@ public abstract class AbstractTest {
             throw new RuntimeException("dummy exception");
         }
     }
-
 }
