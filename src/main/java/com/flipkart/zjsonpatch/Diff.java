@@ -1,26 +1,24 @@
 package com.flipkart.zjsonpatch;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 import java.util.List;
 
 /**
  * User: gopi.vishwakarma
  * Date: 30/07/14
  */
-class Diff {
+public class Diff {
     private Operation operation;
     private List<Object> path;
-    private JsonNode value;
+    private Node value;
     private List<Object> toPath; //only to be used in move operation
 
-    Diff(Operation operation, List<Object> path, JsonNode value) {
+    Diff(Operation operation, List<Object> path, Node value) {
         this.operation = operation;
         this.path = path;
         this.value = value;
     }
 
-    Diff(Operation operation, List<Object> fromPath, JsonNode value, List<Object> toPath) {
+    Diff(Operation operation, List<Object> fromPath, Node value, List<Object> toPath) {
         this.operation = operation;
         this.path = fromPath;
         this.value = value;
@@ -35,11 +33,11 @@ class Diff {
         return path;
     }
 
-    public JsonNode getValue() {
+    public Node getValue() {
         return value;
     }
 
-    public static Diff generateDiff(Operation replace, List<Object> path, JsonNode target) {
+    public static Diff generateDiff(Operation replace, List<Object> path, Node target) {
         return new Diff(replace, path, target);
     }
 

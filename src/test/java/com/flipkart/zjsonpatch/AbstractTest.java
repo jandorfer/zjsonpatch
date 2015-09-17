@@ -3,9 +3,9 @@ package com.flipkart.zjsonpatch;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.flipkart.zjsonpatch.jackson.JacksonJsonPatch;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -43,7 +43,7 @@ public abstract class AbstractTest {
             System.out.println(second);
             System.out.println(patch);
 
-            JsonNode secondPrime = JsonPatch.apply(patch, first);
+            JsonNode secondPrime = JacksonJsonPatch.apply(patch, first);
             System.out.println(secondPrime);
             Assert.assertThat(message, secondPrime, equalTo(second));
         }
@@ -77,7 +77,7 @@ public abstract class AbstractTest {
             System.out.println(first);
             System.out.println(patch);
 
-            JsonNode secondPrime = JsonPatch.apply(patch, first);
+            JsonNode secondPrime = JacksonJsonPatch.apply(patch, first);
             System.out.println(secondPrime);
         }
 

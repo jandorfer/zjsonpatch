@@ -1,9 +1,5 @@
 package com.flipkart.zjsonpatch;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -29,7 +25,7 @@ public class JsonDiff {
         }
     }
 
-    public static JsonNode asJson(final JsonNode source, final JsonNode target) {
+    public static Node asJson(final Node source, final Node target) {
         final List<Diff> diffs = new ArrayList<Diff>();
         List<Object> path = new LinkedList<Object>();
         /**
@@ -41,7 +37,7 @@ public class JsonDiff {
          */
         compactDiffs(diffs);
 
-        return getJsonNodes(diffs);
+        return getJsonNodes(target.getFactory(), diffs);
     }
 
     /**
@@ -147,23 +143,22 @@ public class JsonDiff {
         }
     }
 
-    private static ArrayNode getJsonNodes(List<Diff> diffs) {
-        JsonNodeFactory FACTORY = JsonNodeFactory.instance;
-        final ArrayNode patch = FACTORY.arrayNode();
+    public static Node.Array getJsonNodes(NodeFactory factory, List<Diff> diffs) {
+        final Node.Array patch = factory.arrayNode();
         for (Diff diff : diffs) {
-            ObjectNode jsonNode = getJsonNode(FACTORY, diff);
+            Node.Object jsonNode = getJsonNode(factory, diff);
             patch.add(jsonNode);
         }
         return patch;
     }
 
-    private static ObjectNode getJsonNode(JsonNodeFactory FACTORY, Diff diff) {
-        ObjectNode jsonNode = FACTORY.objectNode();
-        jsonNode.put(Constants.OP, diff.getOperation().rfcName());
-        jsonNode.put(Constants.PATH, getArrayNodeRepresentation(diff.getPath()));
+    public static Node.Object getJsonNode(NodeFactory factory, Diff diff) {
+        Node.Object jsonNode = factory.objectNode();
+        jsonNode.put(Constants.OP, factory.primitive(diff.getOperation().rfcName()));
+        jsonNode.put(Constants.PATH, factory.primitive(getArrayNodeRepresentation(diff.getPath())));
         if (Operation.MOVE.equals(diff.getOperation())) {
-            jsonNode.put(Constants.FROM, getArrayNodeRepresentation(diff.getPath())); //required {from} only in case of Move Operation
-            jsonNode.put(Constants.PATH, getArrayNodeRepresentation(diff.getToPath()));  // destination Path
+            jsonNode.put(Constants.FROM, factory.primitive(getArrayNodeRepresentation(diff.getPath()))); //required {from} only in case of Move Operation
+            jsonNode.put(Constants.PATH, factory.primitive(getArrayNodeRepresentation(diff.getToPath())));  // destination Path
         }
         if (!Operation.REMOVE.equals(diff.getOperation()) && !Operation.MOVE.equals(diff.getOperation())) { // setting only for Non-Remove operation
             jsonNode.put(Constants.VALUE, diff.getValue());
@@ -176,18 +171,17 @@ public class JsonDiff {
                 Iterables.transform(path, ENCODE_PATH_FUNCTION)).toString();
     }
 
-
-    private static void generateDiffs(List<Diff> diffs, List<Object> path, JsonNode source, JsonNode target) {
+    private static void generateDiffs(List<Diff> diffs, List<Object> path, Node source, Node target) {
         if (!source.equals(target)) {
-            final NodeType sourceType = NodeType.getNodeType(source);
-            final NodeType targetType = NodeType.getNodeType(target);
+            final NodeType sourceType = source.getNodeType();
+            final NodeType targetType = target.getNodeType();
 
             if (sourceType == NodeType.ARRAY && targetType == NodeType.ARRAY) {
                 //both are arrays
-                compareArray(diffs, path, source, target);
+                compareArray(diffs, path, (Node.Array) source, (Node.Array) target);
             } else if (sourceType == NodeType.OBJECT && targetType == NodeType.OBJECT) {
                 //both are json
-                compareObjects(diffs, path, source, target);
+                compareObjects(diffs, path, (Node.Object) source, (Node.Object) target);
             } else {
                 //can be replaced
 
@@ -196,8 +190,8 @@ public class JsonDiff {
         }
     }
 
-    private static void compareArray(List<Diff> diffs, List<Object> path, JsonNode source, JsonNode target) {
-        List<JsonNode> lcs = getLCS(source, target);
+    private static void compareArray(List<Diff> diffs, List<Object> path, Node.Array source, Node.Array target) {
+        List<Node> lcs = getLCS(source, target);
         int srcIdx = 0;
         int targetIdx = 0;
         int lcsIdx = 0;
@@ -207,9 +201,9 @@ public class JsonDiff {
 
         int pos = 0;
         while (lcsIdx < lcsSize) {
-            JsonNode lcsNode = lcs.get(lcsIdx);
-            JsonNode srcNode = source.get(srcIdx);
-            JsonNode targetNode = target.get(targetIdx);
+            Node lcsNode = lcs.get(lcsIdx);
+            Node srcNode = source.get(srcIdx);
+            Node targetNode = target.get(targetIdx);
 
 
             if (lcsNode.equals(srcNode) && lcsNode.equals(targetNode)) { // Both are same as lcs node, nothing to do here
@@ -241,8 +235,8 @@ public class JsonDiff {
         }
 
         while ((srcIdx < srcSize) && (targetIdx < targetSize)) {
-            JsonNode srcNode = source.get(srcIdx);
-            JsonNode targetNode = target.get(targetIdx);
+            Node srcNode = source.get(srcIdx);
+            Node targetNode = target.get(targetIdx);
             List<Object> currPath = getPath(path, pos);
             generateDiffs(diffs, currPath, srcNode, targetNode);
             srcIdx++;
@@ -253,7 +247,7 @@ public class JsonDiff {
         removeRemaining(diffs, path, pos, srcIdx, srcSize, source);
     }
 
-    private static Integer removeRemaining(List<Diff> diffs, List<Object> path, int pos, int srcIdx, int srcSize, JsonNode source) {
+    private static Integer removeRemaining(List<Diff> diffs, List<Object> path, int pos, int srcIdx, int srcSize, Node.Array source) {
 
         while (srcIdx < srcSize) {
             List<Object> currPath = getPath(path, pos);
@@ -263,9 +257,9 @@ public class JsonDiff {
         return pos;
     }
 
-    private static Integer addRemaining(List<Diff> diffs, List<Object> path, JsonNode target, int pos, int targetIdx, int targetSize) {
+    private static Integer addRemaining(List<Diff> diffs, List<Object> path, Node.Array target, int pos, int targetIdx, int targetSize) {
         while (targetIdx < targetSize) {
-            JsonNode jsonNode = target.get(targetIdx);
+            Node jsonNode = target.get(targetIdx);
             List<Object> currPath = getPath(path, pos);
             diffs.add(Diff.generateDiff(Operation.ADD, currPath, jsonNode.deepCopy()));
             pos++;
@@ -274,7 +268,7 @@ public class JsonDiff {
         return pos;
     }
 
-    private static void compareObjects(List<Diff> diffs, List<Object> path, JsonNode source, JsonNode target) {
+    private static void compareObjects(List<Diff> diffs, List<Object> path, Node.Object source, Node.Object target) {
         Iterator<String> keysFromSrc = source.fieldNames();
         while (keysFromSrc.hasNext()) {
             String key = keysFromSrc.next();
@@ -305,11 +299,11 @@ public class JsonDiff {
         return toReturn;
     }
 
-    private static List<JsonNode> getLCS(final JsonNode first, final JsonNode second) {
+    private static List<Node> getLCS(final Node first, final Node second) {
 
-        Preconditions.checkArgument(first.isArray(), "LCS can only work on JSON arrays");
-        Preconditions.checkArgument(second.isArray(), "LCS can only work on JSON arrays");
+        Preconditions.checkArgument(first.getNodeType().equals(NodeType.ARRAY), "LCS can only work on JSON arrays");
+        Preconditions.checkArgument(second.getNodeType().equals(NodeType.ARRAY), "LCS can only work on JSON arrays");
 
-        return ListUtils.longestCommonSubsequence(Lists.newArrayList(first), Lists.newArrayList(second));
+        return ListUtils.longestCommonSubsequence(Lists.newArrayList((Node.Array) first), Lists.newArrayList((Node.Array) second));
     }
 }
