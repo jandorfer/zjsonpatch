@@ -45,25 +45,41 @@ Add following to `<dependencies/>` section of your pom.xml -
 ## API Usage
 
 ### Obtaining Json Diff as patch
-```xml
-JsonNode patch = JsonDiff.asJson(JsonNode source, JsonNode target)
+```java
+// With Jackson...
+JsonNode patch = JacksonJsonDiff.asJson(JsonNode source, JsonNode target);
+
+// With generic bson Documents...
+// Return value is a list of Documents
+List patch = BsonDiff.asJson(Document source, Document target);
+
+// With "typed" bson...
+BsonArray patch = BsonDiff.asJson(BsonValue source, BsonValue target);
 ```
 Computes and returns a JSON Patch from source  to target,
-Both source and target must be either valid JSON objects or  arrays or values. 
+Both source and target must be either valid JSON objects or  arrays or values.
 Further, if resultant patch is applied to source, it will yield target.
 
-The algorithm which computes this JsonPatch currently generates following operations as per rfc 6902 - 
+The algorithm which computes this JsonPatch currently generates following operations as per rfc 6902 -
  - ADD
  - REMOVE
  - REPLACE
  - MOVE
- 
+
 
 ### Apply Json Patch
-```xml
-JsonPatch target = JsonPatch.apply(JsonNode patch, JsonNode source);
+```java
+// With Jackson...
+JsonNode result = JacksonJsonPatch.apply(JsonNode patch, JsonNode source);
+
+// With generic bson Documents...
+// Return value is a list of Documents
+Document result = BsonPatch.asJson(List patch, Document source);
+
+// With "typed" bson...
+BsonValue patch = BsonDiff.asJson(BsonArray patch, BsonValue source);
 ```
-Given a Patch, it apply it to source Json and return a target json which can be ( json object or array or value ). This operation  performed on a clone of source json ( thus, source json is untouched and can be used further). 
+Given a Patch, it apply it to source Json and return a target json which can be ( json object or array or value ). This operation  performed on a clone of source json ( thus, source json is untouched and can be used further).
 
 ### Example
 First Json
@@ -85,6 +101,3 @@ here o represents Operation, p represent fromPath from where value should be mov
 ### Tests:
 1. 100+ selective hardcoded different input jsons , with their driver test classes present under /test directory.
 2. Apart from selective input, a deterministic random json generator is present under ( TestDataGenerator.java ),  and its driver test class method is JsonDiffTest.testGeneratedJsonDiff().
-
-
-
