@@ -1,6 +1,5 @@
 package com.flipkart.zjsonpatch.bson;
 
-import com.flipkart.zjsonpatch.jackson.JsonDiffTest;
 import org.apache.commons.io.IOUtils;
 import org.bson.BsonArray;
 import org.bson.BsonDocument;
