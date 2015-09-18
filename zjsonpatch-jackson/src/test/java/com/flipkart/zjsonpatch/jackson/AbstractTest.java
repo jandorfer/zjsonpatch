@@ -12,9 +12,6 @@ import java.io.InputStream;
 
 import static org.hamcrest.core.IsEqual.equalTo;
 
-/**
- * @author ctranxuan (streamdata.io).
- */
 public abstract class AbstractTest {
     static ObjectMapper objectMapper = new ObjectMapper();
     static ArrayNode jsonNode;
@@ -48,24 +45,6 @@ public abstract class AbstractTest {
         }
     }
 
-//    @Test
-//    public void testPatchSyntax() throws Exception {
-//        for (int i = 0; i < jsonNode.size(); i++) {
-//            JsonNode first = jsonNode.get(i).get("node");
-//            JsonNode second = jsonNode.get(i).get("expected");
-//            JsonNode patch = jsonNode.get(i).get("op");
-//
-//            System.out.println("Test # " + i);
-//            System.out.println(first);
-//            System.out.println(second);
-//            System.out.println(patch);
-//
-//            JsonNode diff = JsonDiff.asJson(first, second);
-//            System.out.println(diff);
-//            Assert.assertThat(diff, equalTo(patch));
-//        }
-//    }
-
     @Test(expected = RuntimeException.class)
     public void testErrorsAreCorrectlyReported() {
         for (int i = 0; i < errorNode.size(); i++) {
@@ -84,5 +63,4 @@ public abstract class AbstractTest {
             throw new RuntimeException("dummy exception");
         }
     }
-
 }

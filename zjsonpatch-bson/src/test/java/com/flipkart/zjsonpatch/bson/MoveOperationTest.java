@@ -9,9 +9,6 @@ import java.io.IOException;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-/**
- * @author ctranxuan (streamdata.io).
- */
 public class MoveOperationTest extends AbstractTest {
     public MoveOperationTest() throws IOException {
         super("move");

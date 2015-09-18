@@ -7,7 +7,6 @@ import com.flipkart.zjsonpatch.BasicNode;
 import com.flipkart.zjsonpatch.Node;
 import com.flipkart.zjsonpatch.NodeFactory;
 import com.flipkart.zjsonpatch.NodeType;
-import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
 
 import java.util.Iterator;
@@ -101,12 +100,7 @@ public abstract class JacksonNode extends BasicNode implements Node {
 
         @Override
         public Iterator<Node> iterator() {
-            return Iterators.transform(this.arrayNode.iterator(), new Function<JsonNode, Node>() {
-                @Override
-                public Node apply(JsonNode jsonNode) {
-                    return JacksonNodeFactory.get(jsonNode);
-                }
-            });
+            return Iterators.transform(this.arrayNode.iterator(), JacksonNodeFactory::get);
         }
     }
 
@@ -117,10 +111,6 @@ public abstract class JacksonNode extends BasicNode implements Node {
         public Object(ObjectNode basis) {
             super(basis);
             this.objectNode = basis;
-        }
-
-        public ObjectNode getObjectNode() {
-            return this.objectNode;
         }
 
         @Override

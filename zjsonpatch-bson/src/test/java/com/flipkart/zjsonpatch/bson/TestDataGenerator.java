@@ -7,10 +7,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-/**
- * User: gopi.vishwakarma
- * Date: 05/08/14
- */
 public class TestDataGenerator {
     private static Random random = new Random();
     private static List<String> name = Arrays.asList("summers", "winters", "autumn", "spring", "rainy");
@@ -22,28 +18,20 @@ public class TestDataGenerator {
             "a", "b", "c", "d", "e", "f", "g", "h", "i", "j");
 
     public static Document generate(int count) {
-        List<Document> jsonNode = new ArrayList<Document>();
+        List<Document> jsonNode = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             Document objectNode = new Document();
             objectNode.put("name", name.get(random.nextInt(name.size())));
             objectNode.put("age", age.get(random.nextInt(age.size())));
             objectNode.put("gender", gender.get(random.nextInt(gender.size())));
-            List countryNode = getArrayNode(country.subList(random.nextInt(country.size() / 2), (country.size() / 2) + random.nextInt(country.size() / 2)));
+            List countryNode = country.subList(random.nextInt(country.size() / 2), (country.size() / 2) + random.nextInt(country.size() / 2));
             objectNode.put("country", countryNode);
-            List friendNode = getArrayNode(friends.subList(random.nextInt(friends.size() / 2), (friends.size() / 2) + random.nextInt(friends.size() / 2)));
+            List friendNode = friends.subList(random.nextInt(friends.size() / 2), (friends.size() / 2) + random.nextInt(friends.size() / 2));
             objectNode.put("friends", friendNode);
             jsonNode.add(objectNode);
         }
         Document holder = new Document();
         holder.put("people", jsonNode);
         return holder;
-    }
-
-    private static List getArrayNode(List<String> args) {
-        List<String> countryNode = new ArrayList<String>();
-        for(String arg : args){
-            countryNode.add(arg);
-        }
-        return countryNode;
     }
 }

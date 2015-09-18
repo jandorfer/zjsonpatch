@@ -10,8 +10,7 @@ import java.util.Map;
 
 public class JacksonNodeType {
 
-    private static final Map<JsonToken, NodeType> TOKEN_MAP
-            = new EnumMap<JsonToken, NodeType>(JsonToken.class);
+    private static final Map<JsonToken, NodeType> TOKEN_MAP = new EnumMap<>(JsonToken.class);
 
     static {
         TOKEN_MAP.put(JsonToken.START_ARRAY, NodeType.ARRAY);

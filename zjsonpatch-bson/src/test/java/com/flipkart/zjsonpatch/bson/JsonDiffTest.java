@@ -11,9 +11,6 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Random;
 
-/**
- * Unit test
- */
 public class JsonDiffTest {
     static List jsonNode;
 

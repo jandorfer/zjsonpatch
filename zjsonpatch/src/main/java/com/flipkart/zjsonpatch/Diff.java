@@ -2,10 +2,6 @@ package com.flipkart.zjsonpatch;
 
 import java.util.List;
 
-/**
- * User: gopi.vishwakarma
- * Date: 30/07/14
- */
 public class Diff {
     private Operation operation;
     private List<Object> path;

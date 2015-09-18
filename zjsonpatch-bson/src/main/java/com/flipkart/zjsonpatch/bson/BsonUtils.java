@@ -9,11 +9,10 @@ import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.types.ObjectId;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class BsonUtils {
     public static final CodecRegistry DEFAULT_CODEC_REGISTRY =
@@ -25,11 +24,9 @@ public class BsonUtils {
     public static BsonValue deepCopy(BsonValue value) {
         switch (value.getBsonType()) {
             case ARRAY:
-                BsonArray arr = new BsonArray();
-                for (BsonValue val : value.asArray().getValues()) {
-                    arr.add(deepCopy(val));
-                }
-                return arr;
+                return value.asArray().getValues().stream()
+                        .map(BsonUtils::deepCopy)
+                        .collect(Collectors.toCollection(BsonArray::new));
             case BINARY:
                 return new BsonBinary(value.asBinary().getType(), value.asBinary().getData());
             case BOOLEAN:
@@ -83,11 +80,9 @@ public class BsonUtils {
     public static Object unwrap(BsonValue value) {
         switch (value.getBsonType()) {
             case ARRAY:
-                List<Object> arr = new ArrayList<Object>();
-                for (BsonValue val : value.asArray().getValues()) {
-                    arr.add(unwrap(val));
-                }
-                return arr;
+                return value.asArray().getValues().stream()
+                        .map(BsonUtils::unwrap)
+                        .collect(Collectors.toList());
             case BINARY:
                 return value.asBinary().getData();
             case BOOLEAN:

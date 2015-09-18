@@ -9,10 +9,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-/**
- * User: gopi.vishwakarma
- * Date: 05/08/14
- */
 public class TestDataGenerator {
     private static Random random = new Random();
     private static List<String> name = Arrays.asList("summers", "winters", "autumn", "spring", "rainy");
@@ -41,9 +37,7 @@ public class TestDataGenerator {
 
     private static ArrayNode getArrayNode(List<String> args) {
         ArrayNode countryNode = JsonNodeFactory.instance.arrayNode();
-        for(String arg : args){
-            countryNode.add(arg);
-        }
+        args.forEach(countryNode::add);
         return countryNode;
     }
 }

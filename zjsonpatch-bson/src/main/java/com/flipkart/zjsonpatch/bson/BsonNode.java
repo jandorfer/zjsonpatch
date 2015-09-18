@@ -4,7 +4,6 @@ import com.flipkart.zjsonpatch.BasicNode;
 import com.flipkart.zjsonpatch.Node;
 import com.flipkart.zjsonpatch.NodeFactory;
 import com.flipkart.zjsonpatch.NodeType;
-import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
 import org.bson.BsonArray;
 import org.bson.BsonDocument;
@@ -106,12 +105,7 @@ public abstract class BsonNode extends BasicNode implements Node {
 
         @Override
         public Iterator<Node> iterator() {
-            return Iterators.transform(this.arrayNode.iterator(), new Function<BsonValue, Node>() {
-                @Override
-                public Node apply(BsonValue jsonNode) {
-                    return BsonNodeFactory.get(jsonNode);
-                }
-            });
+            return Iterators.transform(this.arrayNode.iterator(), BsonNodeFactory::get);
         }
     }
 
@@ -122,10 +116,6 @@ public abstract class BsonNode extends BasicNode implements Node {
         public Object(BsonDocument basis) {
             super(basis);
             this.objectNode = basis;
-        }
-
-        public BsonDocument getObjectNode() {
-            return this.objectNode;
         }
 
         @Override

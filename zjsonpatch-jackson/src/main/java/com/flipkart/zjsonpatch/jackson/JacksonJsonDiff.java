@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.flipkart.zjsonpatch.JsonDiff;
 
 public class JacksonJsonDiff {
-
     public static ArrayNode asJson(JsonNode source, JsonNode target) {
         return ((JacksonNode.Array) JsonDiff.asJson(
                 JacksonNodeFactory.get(source),

@@ -11,7 +11,7 @@ import java.util.Map;
 public class BsonNodeType {
 
     private static final Map<BsonType, NodeType> TOKEN_MAP
-            = new EnumMap<BsonType, NodeType>(BsonType.class);
+            = new EnumMap<>(BsonType.class);
 
     static {
         TOKEN_MAP.put(BsonType.ARRAY, NodeType.ARRAY);

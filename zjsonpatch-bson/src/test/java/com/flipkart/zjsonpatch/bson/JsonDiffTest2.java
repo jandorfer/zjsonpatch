@@ -12,9 +12,6 @@ import java.util.List;
 
 import static org.hamcrest.core.IsEqual.equalTo;
 
-/**
- * @author ctranxuan (streamdata.io).
- */
 public class JsonDiffTest2 {
     static List jsonNode;
 

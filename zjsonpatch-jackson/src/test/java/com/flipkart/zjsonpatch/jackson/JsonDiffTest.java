@@ -12,9 +12,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Random;
 
-/**
- * Unit test
- */
 public class JsonDiffTest {
     static ObjectMapper objectMapper = new ObjectMapper();
     static ArrayNode jsonNode;

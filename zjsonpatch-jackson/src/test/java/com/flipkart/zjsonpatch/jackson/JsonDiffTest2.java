@@ -13,9 +13,6 @@ import java.io.InputStream;
 
 import static org.hamcrest.core.IsEqual.equalTo;
 
-/**
- * @author ctranxuan (streamdata.io).
- */
 public class JsonDiffTest2 {
     static ObjectMapper objectMapper = new ObjectMapper();
     static ArrayNode jsonNode;

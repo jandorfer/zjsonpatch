@@ -6,10 +6,6 @@ import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-/**
- * User: gopi.vishwakarma
- * Date: 30/07/14
- */
 enum Operation {
     ADD("add"),
     REMOVE("remove"),
